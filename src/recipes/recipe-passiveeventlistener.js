@@ -21,17 +21,34 @@
 void function() {
     window.CSSUsage.StyleWalker.recipesToRun.push( function passiveEL( element, results) {
 
-        if (element.nodeName == "SCRIPT") {
+        results["use"] = results["use"] || { count: 0, errors: 0 };
 
-            var matchCount = (element.innerText.match(/addEventListener\s*\(\s*\S*,\s*\S*,/g) || []).length;
-            if (element.innerText.indexOf("passive:") != -1 && matchCount > 0) {
-                results["use"] = results["use"] || { count: 0 };
-                results["use"].count++;
+        try {
+            if (element.nodeName == "SCRIPT") {
+                // inline script
+                if (element.text !== undefined && element.innerText.indexOf("passive:") != -1) {
+                    var matchCount = (element.innerText.match(/addEventListener\s*\(\s*\S*,\s*\S*,/g) || []).length;
+                    if (matchCount > 0) {
+                        results["use"].count++;
+                    }
+                }
+                // download JS using xhr
+                else if (element.src !== undefined && element.src != "" && element.src.indexOf("Recipe.min.js") == -1) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("GET", element.src, false);
+                    xhr.send();
+                    if (xhr.status === 200 && xhr.responseText.indexOf("passive:") != -1) {
+                        var matchCount = (xhr.responseText.match(/addEventListener\s*\(\s*\S*,\s*\S*,/g) || []).length;
+                        if (matchCount > 0) {
+                            results["use"].count++;
+                        }
+                    }
+                }
             }
+        }
 
-
-
-
+        catch (err) {
+            results["use"].errors++;
         }
 
         return results;
