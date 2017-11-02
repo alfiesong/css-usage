@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<script src="../../Recipe.min.js"></script>
+
+<style>
+html {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAFpSURBVHhe7durEcJAAEVRgsXRCPVCRziQUAI/BdhgKCDXZSYn+oqds2/idhjHcTWz7/z67LabmR1qdbje13M705zPAyvcDixYQSCklgUrCITUsmAFgZBaFqwgEFLLghUEQmpZsIJASC0LVhAIqWXBCgIhtSxYQSCklgUrCITUsmAFgZBaFqwgEFLLghUEQmpZsIJASC0LVhAIqWXBCgIhtSxYQSCklgUrCITUsmAFgZBaFqwgEFLLghUEQmpZsIJASC0LVhAI6XB6vkO+4PT4+A5esk4cgJesE6H+mR988IIFKwiE1LJgBYGQWhasIBBSy4IVBEJqWbCCQEgtC1YQCKllwQoCIbUsWEEgpJYFKwiE1LJgBYGQWhasIBBSy4IVBEJqWbCCQEgtC1YQCKllwQoCIbUsWEEgpJYFKwiE1LJgBYGQWhasIBBSy4IVBEJqWbCCQEgtC1YQCKllwQoCIR32l1vIl53+AI/JGTUBmZViAAAAAElFTkSuQmCC) repeat local;
+}
+
+.scrollArea {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    top: 4000px;
+    left: 4000px;
+}
+</style>
+
+    <script>
+        function wheelFunction() {
+            document.getElementById("wheelListenerCalled").innerHTML += "wheel event listener function is called!<br>";
+        };
+        // this is to test crawler
+        document.addEventListener("wheel", wheelFunction, {passive:true});
+    </script>
+    <script>
+        var passiveSupported = false;
+        try {
+            var options = Object.defineProperty({}, "passive", {
+                get: function () {
+                    passiveSupported = true;
+                }
+            });
+            window.addEventListener("test", null, options);
+        } catch (err) { }
+
+        document.addEventListener("wheel", wheelFunction, passiveSupported ? { passive: true } : false);
+    </script>
+
+    <script>
+        document.addEventListener("wheel", wheelFunction, { passive: true, capture: true });
+    </script>
+    <script>
+        document.addEventListener("wheel", wheelFunction, true); // this should not count
+    </script>
+
+    <script>
+        var option = {
+            passive: true,
+            capture: false
+        };
+        document.addEventListener("wheel", wheelFunction, option);
+    </script>
+
+</head>
+<body>
+
+<div class="scrollArea"></div>
+<p id = "wheelListenerCalled"></p>
+
+</body>
+</html>
