@@ -1813,7 +1813,7 @@ void function() {
                     }
                 }
                 // download JS using xhr
-                else if (element.src !== undefined && element.src != "" && element.src.indexOf("Recipe.min.js") == -1) {
+              /*  else if (element.src !== undefined && element.src != "" && element.src.indexOf("Recipe.min.js") == -1) {
                     var xhr = new XMLHttpRequest();
                     xhr.open("GET", element.src, false);
                     xhr.send();
@@ -1823,7 +1823,7 @@ void function() {
                             results["use"].count++;
                         }
                     }
-                }
+                } */
             }
         }
 
