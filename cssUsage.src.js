@@ -1835,7 +1835,8 @@ void function() {
                     results["use"].Count++;
                 }
                 // 4, 5
-                var matchCount = (scriptText.match(/addEventListener\s*\(\s*\S*,\s*\S*,/g) || []).length;
+                
+                var matchCount = (scriptText.match(/addEventListener\s*\(\s*\S*,\s*\S*,(?!\s*true\s*\))(?!\s*false\s*\))/g) || []).length; // it has a third parameter, but not "true" or "false"
                 if (matchCount > 0) {
                     results["use"].extendedCount++;
                 }
