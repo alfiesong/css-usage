@@ -1808,9 +1808,9 @@ void function() { try {
 */
 
 void function() {
-    window.CSSUsage.StyleWalker.recipesToRun.push( function passiveEL( element, results) {
+    window.CSSUsage.StyleWalker.recipesToRun.push( function fontloading( element, results) {
 
-        results["use"] = results["use"] || { docFontsCount: 0, fontFaceCount: 0, errors: 0 };
+        results["use"] = results["use"] || { docFontsCount: 0, Count: 0, errors: 0 };
 
         try {
             if (element.nodeName == "SCRIPT") {
@@ -1821,7 +1821,7 @@ void function() {
                 if (element.text !== undefined) {
 					if (element.innerText.indexOf("new FontFace") != -1) {
 					    //scriptText = element.innerText;
-					    results["use"].fontFaceCount++;
+					    results["use"].Count++;
                     }
                     if (element.innerText.indexOf("document.fonts") != -1) {
 						//scriptText = element.innerText;
