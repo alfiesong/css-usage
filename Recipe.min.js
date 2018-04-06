@@ -1782,89 +1782,64 @@ void function() { try {
 } catch (ex) { /* do something maybe */ throw ex; } }();
 
 /*
-    RECIPE: Passive Event Listener
+    JSAPI RECIPE: Font loading API
     -------------------------------------------------------------
     Author: alson
-    Description: This counts any page that includes any script referecnces to passive event listener
-    Scenraios:
-    1. addEventListener(any, function, {passive:true}); -> /addEventListener\s*\(\s*\S*,\s*\S*,\s*\{\s*passive\s*:\s*\S*\s*\}\s*\)/g
-    2. addEventListener(any, function, {passive:true, capture:true, once: true});
-    Above two scenario, we use /addEventListener\s*\(\s*\S*,\s*\S*,\s*\{\s*passive\s*:/g    just to detect "addEventListener(any, function, {passive:"
-    here ignore the case when passive is not the first parameter, because it would probably make it too complicated
-    3. addEventListener(any, function, passiveSupported ? { passive: true } : false);
-    /addEventListener\s*\(\s*\S*,\s*\S*,\s*\S*\s*\?\s*{\s*passive\s*:/g
-
-    Also we have below scenarios:
-    4. addEventListener(any, function, option); var option = { passive: true }; this scenario is hard to have a perfect solution to detect
-    Also need to exclude this scenario:
-    5. addEventListener(any, function, true)  this trade "true" as useCapture
-
-    Since there are so many different situations for 4 and 5, here we just detect
-    a. if addEventListener is using a third parameter
-    b. if "passive:" shows up in JS. This indicates a high chance that JS is at least trying to use passive event listener
-    And treat this alone as "extendedCount", which covers all scenarios.
-
-    In the result, if the count number > 0, then indicate the page probably uses passive event listener
+    Description: Find instances of Font loading APIs
 */
 
-void function() {
-    window.CSSUsage.StyleWalker.recipesToRun.push( function fontloading( element, results) {
+window.debugCSSUsage = true
 
-        results["use"] = results["use"] || { docFontsCount: 0, Count: 0, errors: 0 };
+window.apiCount = 0;
+FontFace.prototype._oldLoad = FontFace.prototype.load;
+FontFace.prototype.load = function() {
+    console.log('In load function');
+    window.apiCount++;
+    this._oldLoad();
+};
 
-        try {
-            if (element.nodeName == "SCRIPT") {
+void function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        var results = {};
+        var recipeName = "font_loading_api_ready";
 
-                var scriptText = "";
+        if(window.apiCount > 0)
+        {
+            results[recipeName] = results[recipeName] || { count: 0, href: location.href };
+            results[recipeName].count = window.apiCount;
+        }
+        else
+        {
+            results[recipeName] = results[recipeName] || { href: location.href };
+        }
 
-                // inline script
-                if (element.text !== undefined) {
-					if (element.innerText.indexOf("new FontFace") != -1) {
-					    //scriptText = element.innerText;
-					    results["use"].Count++;
-                    }
-                    if (element.innerText.indexOf("document.fonts") != -1) {
-						//scriptText = element.innerText;
-						results["use"].docFontsCount++;
-                    }
-				}
 
-                // download JS using xhr
-                /*
-                else if (element.src !== undefined && element.src != "" && element.src.indexOf("Recipe.min.js") == -1) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open("GET", element.src, false); // third parameter, set it to sync otherwise it won't catch it
-                    xhr.send();
-                    if (xhr.status === 200 && xhr.responseText.indexOf("passive:") != -1) {
-                        scriptText = xhr.responseText;
-                    }
-                }*/
-   				/*
-                // 1,2,3
-                var matchCount1 = (scriptText.match(/addEventListener\s*\(\s*\S*,\s*\S*,\s*\{\s*passive\s*:/g) || []).length;
-                var matchCount2 = (scriptText.match(/addEventListener\s*\(\s*\S*,\s*\S*,\s*\S*\s*\?\s*{\s*passive\s*:/g) || []).length;
-                if (matchCount1 > 0 || matchCount2 > 0) {
-                    results["use"].Count++;
-                }
-                // 4, 5
+        appendResults(results);
 
-                var matchCount = (scriptText.match(/addEventListener\s*\(\s*\S*,\s*\S*,(?!\s*true\s*\))(?!\s*false\s*\))/g) || []).length; // it has a third parameter, but not "true" or "false"
-                if (matchCount > 0) {
-                    results["use"].extendedCount++;
-                }
-                */
+        // Add it to the document dom
+        function appendResults(results) {
+            if (window.debugCSSUsage) console.log("Trying to append");
+            var output = document.createElement('script');
+            output.id = "css-usage-tsv-results";
+            output.textContent = JSON.stringify(results);
+            output.type = 'text/plain';
+            document.querySelector('head').appendChild(output);
+            var successfulAppend = checkAppend();
+        }
+
+        function checkAppend() {
+            if (window.debugCSSUsage) console.log("Checking append");
+            var elem = document.getElementById('css-usage-tsv-results');
+            if (elem === null) {
+                if (window.debugCSSUsage) console.log("Element not appended");
+            }
+            else {
+                if (window.debugCSSUsage) console.log("Element successfully found");
             }
         }
 
-        catch (err) {
-            results["use"].errors++;
-        }
-
-        return results;
     });
 }();
-
-
 //
 // This file is only here to create the TSV
 // necessary to collect the data from the crawler
