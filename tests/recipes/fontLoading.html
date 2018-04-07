@@ -5,7 +5,7 @@
 		<style>
 			@font-face {
 				font-family: myFirstFont;
-				src: url('Condition3D-Regular.ttf');
+				src: url('Chewy.ttf');
 				font-weight: normal;
 			}
 
@@ -14,6 +14,9 @@
 				font-weight: normal;
 				font-size: 150%;
 			}
+			.noto-regular-loaded {
+			  font-family: 'Noto Sans Regular', Helvetica, sans-serif;
+            }
 		</style>
 
         <script src="../../Recipe.min.js"></script>
@@ -26,7 +29,7 @@
 		if(document.fonts) {
 		  console.log('==========================================');
 		  // Define a new FontFace
-		  const notoSansRegular = new FontFace('Noto Sans Regular', 'url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/144736/NotoSans-Regular.woff2), url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/144736/NotoSans-Regular.woff)');
+		  const notoSansRegular = new FontFace('Noto Sans Regular', 'url(Condition3D-Regular.ttf)');
 		  //console.log(notoSansRegular);
 
 		  // Add the FontFace to the FontFaceSet

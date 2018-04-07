@@ -23,13 +23,14 @@ void function () {
         if(window.apiCount > 0)
         {
             results[recipeName] = results[recipeName] || { count: 0, href: location.href };
-            results[recipeName].count = window.apiCount;
+            results[recipeName].count = window.apiCount;console.log('check!!!!!:');
         }
         else
         {
-            results[recipeName] = results[recipeName] || { href: location.href };
+            results[recipeName] = results[recipeName] || { href: location.href };console.log('check =0!!!!!:');
         }
 
+console.log('Results!!!!!!:'+ results[recipeName]);
 
         appendResults(results);
 

@@ -1781,65 +1781,75 @@ void function() { try {
 	
 } catch (ex) { /* do something maybe */ throw ex; } }();
 
-/*
-    JSAPI RECIPE: Font loading API
-    -------------------------------------------------------------
-    Author: alson
-    Description: Find instances of Font loading APIs
-*/
-
-window.debugCSSUsage = true
-
-window.apiCount = 0;
-FontFace.prototype._oldLoad = FontFace.prototype.load;
-FontFace.prototype.load = function() {
-    console.log('In load function');
-    window.apiCount++;
-    this._oldLoad();
-};
-
-void function () {
-    document.addEventListener('DOMContentLoaded', function () {
-        var results = {};
-        var recipeName = "font_loading_api_ready";
-
-        if(window.apiCount > 0)
-        {
-            results[recipeName] = results[recipeName] || { count: 0, href: location.href };
-            results[recipeName].count = window.apiCount;
-        }
-        else
-        {
-            results[recipeName] = results[recipeName] || { href: location.href };
-        }
 
 
-        appendResults(results);
+void function() {
+    window.CSSUsage.StyleWalker.recipesToRun.push( function fontloading( element, results) {
 
-        // Add it to the document dom
-        function appendResults(results) {
-            if (window.debugCSSUsage) console.log("Trying to append");
-            var output = document.createElement('script');
-            output.id = "css-usage-tsv-results";
-            output.textContent = JSON.stringify(results);
-            output.type = 'text/plain';
-            document.querySelector('head').appendChild(output);
-            var successfulAppend = checkAppend();
-        }
+        results["use"] = results["use"] || { docFontsCount: 0, Count: 0, errors: 0 };
 
-        function checkAppend() {
-            if (window.debugCSSUsage) console.log("Checking append");
-            var elem = document.getElementById('css-usage-tsv-results');
-            if (elem === null) {
-                if (window.debugCSSUsage) console.log("Element not appended");
+        try {
+            if (element.nodeName == "SCRIPT") {
+
+                var scriptText = "";
+
+                // inline script
+                if (element.text !== undefined) {
+					if (element.innerText.indexOf("new FontFace") != -1) {
+					    //scriptText = element.innerText;
+					    results["use"].Count++;
+                    }
+                    if (element.innerText.indexOf("document.fonts") != -1) {
+						//scriptText = element.innerText;
+						results["use"].docFontsCount++;
+                    }
+				}
+
+                // download JS using xhr
+
+                else if (element.src !== undefined && element.src != "" && element.src.indexOf("Recipe.min.js") == -1) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("GET", element.src, false); // third parameter, set it to sync otherwise it won't catch it
+                    xhr.send();
+                    if (xhr.status === 200 && xhr.responseText.indexOf("passive:") != -1) {
+                        scriptText = xhr.responseText;
+                    }
+                }
+
+				if (scriptText.indexOf("new FontFace") != -1) {
+				    //scriptText = element.innerText;
+				    results["use"].Count++;
+                }
+                if (scriptText.indexOf("document.fonts") != -1) {
+					//scriptText = element.innerText;
+					results["use"].docFontsCount++;
+                 }
+   				/*
+                // 1,2,3
+                var matchCount1 = (scriptText.match(/addEventListener\s*\(\s*\S*,\s*\S*,\s*\{\s*passive\s*:/g) || []).length;
+                var matchCount2 = (scriptText.match(/addEventListener\s*\(\s*\S*,\s*\S*,\s*\S*\s*\?\s*{\s*passive\s*:/g) || []).length;
+                if (matchCount1 > 0 || matchCount2 > 0) {
+                    results["use"].Count++;
+                }
+                // 4, 5
+
+                var matchCount = (scriptText.match(/addEventListener\s*\(\s*\S*,\s*\S*,(?!\s*true\s*\))(?!\s*false\s*\))/g) || []).length; // it has a third parameter, but not "true" or "false"
+                if (matchCount > 0) {
+                    results["use"].extendedCount++;
+                }
+                */
             }
-            else {
-                if (window.debugCSSUsage) console.log("Element successfully found");
-            }
         }
 
+        catch (err) {
+            results["use"].errors++;
+        }
+
+        return results;
     });
 }();
+
+
 //
 // This file is only here to create the TSV
 // necessary to collect the data from the crawler
