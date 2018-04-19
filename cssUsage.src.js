@@ -1796,11 +1796,11 @@ void function() {
         results["use"] = results["use"] || { count: 0};
 
         // return if we already have a result.
+        // This mediaqueryFontFace function will be called for every element
+        // and our function only need to be called once, it will return all of them
         if(results["use"].count > 0)
         	return results;
 
-        // This mediaqueryFontFace function will be called for every element
-        // and our function only need to be called in style
     //    if (element.nodeName === "STYLE" || (element.nodeName === "LINK" && element.rel === "stylesheet")) {
 			for(var i=0; i < document.styleSheets.length; i++) {
 				//var text = document.styleSheets[i].cssText; this only applies to Edge
