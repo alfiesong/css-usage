@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>FontFace in Media Query</title>
+    <link type="text/css" href="../test-page/style.css"  rel="stylesheet" />
+    <script src="../../Recipe.min.js"></script>
+
+	<style>
+		@font-face {
+			font-family: myFirstFont;
+			src: url('Chewy.ttf');
+			font-weight: normal;
+		}
+
+		#no1 {
+			font-family: myFirstFont;
+			font-weight: normal;
+			font-size: 150%;
+		}
+
+		@media only screen and (max-width: 600px){
+			@font-face {
+				font-family: Biffes;
+				src: url('Chewy.ttf');
+
+			}
+			p {
+				font-family: Biffes, serif;
+			}
+		}
+	</style>
+</head>
+<body>
+
+<div id="no1">No1  With CSS3, websites can use fonts other than the pre-selected ADSSS fonts.</div>
+
+<p>FI want to make it so that only users of retina displays load an @font-face font with my site's icons.
+All other users will be shown a sprite. Is it possible to use @font-face within a media query to make this possible?</p>
+
+<h1 style="color:blue;">This is a Blue Heading</h1>
+
+</body>
+</html>
