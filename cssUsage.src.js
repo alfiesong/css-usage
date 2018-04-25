@@ -1803,8 +1803,19 @@ void function() {
 
     //    if (element.nodeName === "STYLE" || (element.nodeName === "LINK" && element.rel === "stylesheet")) {
 			for(var i=0; i < document.styleSheets.length; i++) {
-				//var text = document.styleSheets[i].cssText; this only applies to Edge
-				var ruleList = document.styleSheets[i].rules;
+				//var text = document.styleSheets[i].cssText; this cssText only applies to Edge
+				var ruleList;
+
+				// here have to catch the error because document.styleSheets[i].hasOwnProperty('rules') always return false;
+				// refer to https://github.com/odoo/odoo/issues/22517
+				try {
+				    ruleList = document.styleSheets[i].rules;
+				}
+				catch(err) {
+				    console.log("no rules for this style: " + err);
+				    continue;
+				}
+
 				for(var j=0; j < ruleList.length; j++) {
 					/* MEDIA_RULE is 4. Constant
 						cssRuleReference.UNKNOWN_RULE 0
