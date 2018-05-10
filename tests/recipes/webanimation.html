@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script src="../../Recipe.min.js"></script>
+<script src="https://rawgit.com/web-animations/web-animations-js/master/web-animations.min.js"></script>
+<style>
+	div {
+	  width: 200px;
+	  height: 200px;
+	  background-color: black;
+	  margin: auto;
+	  margin-top: 20vh;
+	  border-radius: 50%;
+	}
+</style>
+
+
+    <script>
+
+    </script>
+
+
+
+
+</head>
+<body>
+
+<div></div>
+    <script>
+		var h1 = document.querySelector("div")
+
+		var options = {
+		iterations: Infinity,
+		iterationStart: 0,
+		delay: 0,
+		endDelay: 0,
+		direction: 'alternate',
+		duration: 700,
+		fill: 'forwards',
+		easing: 'ease-out',
+		}
+
+		var keyframes = [
+		{ transform: 'translateY(-1000px) scaleY(2.5) scaleX(.2)', transformOrigin: '50% 0', filter: 'blur(40px)', opacity: 0 },
+		{ transform: 'translateY(0) scaleY(1) scaleX(1)',
+		transformOrigin: '50% 50%',
+		 filter: 'blur(0)',
+		 opacity: 1 }
+		]
+
+		h1.animate(keyframes, options)
+    </script>
+
+
+</body>
+</html>

@@ -1779,35 +1779,35 @@ void function() { try {
 } catch (ex) { /* do something maybe */ throw ex; } }();
 
 /*
-    RECIPE: Passive Event Listener
+    RECIPE: Web Animation API
     -------------------------------------------------------------
     Author: alson
-    Description: This counts any page that includes any script referecnces to passive event listener
+    Description: This counts any page that includes any script referecnces to web animnation API
     Scenraios:
-    1. addEventListener(any, function, {passive:true}); -> /addEventListener\s*\(\s*\S*,\s*\S*,\s*\{\s*passive\s*:\s*\S*\s*\}\s*\)/g
-    2. addEventListener(any, function, {passive:true, capture:true, once: true});
-    Above two scenario, we use /addEventListener\s*\(\s*\S*,\s*\S*,\s*\{\s*passive\s*:/g    just to detect "addEventListener(any, function, {passive:"
-    here ignore the case when passive is not the first parameter, because it would probably make it too complicated
-    3. addEventListener(any, function, passiveSupported ? { passive: true } : false);
-    /addEventListener\s*\(\s*\S*,\s*\S*,\s*\S*\s*\?\s*{\s*passive\s*:/g
+    1. h1.animate(keyframes, options)
+    2. var aliceChange = document.getElementById('alice').animate(
+		  [
+			{ transform: 'translate(-50%, -50%) scale(.5)' },
+			{ transform: 'translate(-50%, -50%) scale(2)' }
+		  ], {
+			duration: 8000,
+			easing: 'ease-in-out',
+			fill: 'both'
+		  });
+    3. If a script section has: <script src="https://rawgit.com/web-animations/web-animations-js/master/web-animations.min.js"></script>
+       Then it is using polyfill.
 
-    Also we have below scenarios: 
-    4. addEventListener(any, function, option); var option = { passive: true }; this scenario is hard to have a perfect solution to detect
-    Also need to exclude this scenario:
-    5. addEventListener(any, function, true)  this trade "true" as useCapture 
+    Have to do a regex parsing because JS API crawling does not support Chrome. But have to use Chrome to get the real usage of this API.
+    Will do a polyfill run on Edge.
 
-    Since there are so many different situations for 4 and 5, here we just detect 
-    a. if addEventListener is using a third parameter
-    b. if "passive:" shows up in JS. This indicates a high chance that JS is at least trying to use passive event listener
-    And treat this alone as "extendedCount", which covers all scenarios.
-
-    In the result, if the count number > 0, then indicate the page probably uses passive event listener
+	In the result you may see for a URL, 4 rows, extendedCount Count Poly and errors. If Poly > 0, ignore the rest, this is poly.
+	if Poly == 0 but extendedCount or Count > 0, this is web animation API usage
 */
 
 void function() {
-    window.CSSUsage.StyleWalker.recipesToRun.push( function passiveEL( element, results) {
+    window.CSSUsage.StyleWalker.recipesToRun.push( function webanimation( element, results) {
 
-        results["use"] = results["use"] || { extendedCount: 0, Count: 0, errors: 0 };
+        results["use"] = results["use"] || { extendedCount: 0, Count: 0, Poly: 0, errors: 0 };
 
         try {
             if (element.nodeName == "SCRIPT") {
@@ -1815,11 +1815,16 @@ void function() {
                 var scriptText = "";
 
                 // inline script
-                if (element.text !== undefined && element.innerText.indexOf("passive:") != -1) {
+                if (element.text !== undefined && element.innerText.indexOf(".animate") != -1) {
                     scriptText = element.innerText;
                 }
                 // download JS using xhr
-                else if (element.src !== undefined && element.src != "" && element.src.indexOf("Recipe.min.js") == -1) {
+                else if (element.src !== undefined && element.src != "" ) {
+					if(element.src.indexOf("web-animations.min.js") != -1) { // this is a polyfill, record and return
+						results["use"].Poly++;
+						return results;
+					}
+
                     var xhr = new XMLHttpRequest();
                     xhr.open("GET", element.src, false); // third parameter, set it to sync otherwise it won't catch it
                     xhr.send();
@@ -1828,25 +1833,22 @@ void function() {
                     }
                 }
 
-                // 1,2,3
-                var matchCount1 = (scriptText.match(/addEventListener\s*\(\s*\S*,\s*\S*,\s*\{\s*passive\s*:/g) || []).length;
-                var matchCount2 = (scriptText.match(/addEventListener\s*\(\s*\S*,\s*\S*,\s*\S*\s*\?\s*{\s*passive\s*:/g) || []).length;
-                if (matchCount1 > 0 || matchCount2 > 0) {
+                var matchCount = (scriptText.match(/\.animate\s*\(\s*\S*\s*,\s*\S*\s*\)/g) || [] ).length; // .animate    ( keyframes   ,  options )
+                if (matchCount > 0) {
                     results["use"].Count++;
                 }
-                // 4, 5
-                
-                var matchCount = (scriptText.match(/addEventListener\s*\(\s*\S*,\s*\S*,(?!\s*true\s*\))(?!\s*false\s*\))/g) || []).length; // it has a third parameter, but not "true" or "false"
-                if (matchCount > 0) {
+
+                var matchCount1 = (scriptText.match(/\.animate\s*\(\s*\S*/g)  || [] ).length; // this is .animate (
+                if (matchCount1 > 0) {
                     results["use"].extendedCount++;
                 }
+
             }
         }
 
         catch (err) {
             results["use"].errors++;
         }
-
         return results;
     });
 }();
