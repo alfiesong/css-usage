@@ -22,12 +22,13 @@
 
 	In the result you may see for a URL, 4 rows, extendedCount Count Poly and errors. If Poly > 0, ignore the rest, this is poly.
 	if Poly == 0 but extendedCount or Count > 0, this is web animation API usage
+	if it has TweenMax or TweenLite, that means GreenSock library
 */
 
 void function() {
     window.CSSUsage.StyleWalker.recipesToRun.push( function webanimation( element, results) {
 
-        results["use"] = results["use"] || { extendedCount: 0, Count: 0, Poly: 0, errors: 0 };
+        results["use"] = results["use"] || { Count: 0, Poly: 0, GS: 0, errors: 0 };
 
         try {
             if (element.nodeName == "SCRIPT") {
@@ -44,11 +45,15 @@ void function() {
 						results["use"].Poly++;
 						return results;
 					}
+					else if(element.src.indexOf("TweenMax.min.js") != -1 || element.src.indexOf("TweenLite.min.js") != -1 ) { // this is a greensock
+						results["use"].GS++;
+						return results;
+					}
 
                     var xhr = new XMLHttpRequest();
                     xhr.open("GET", element.src, false); // third parameter, set it to sync otherwise it won't catch it
                     xhr.send();
-                    if (xhr.status === 200 && xhr.responseText.indexOf("passive:") != -1) {
+                    if (xhr.status === 200 && xhr.responseText.indexOf(".animate") != -1) {
                         scriptText = xhr.responseText;
                     }
                 }
@@ -58,10 +63,10 @@ void function() {
                     results["use"].Count++;
                 }
 
-                var matchCount1 = (scriptText.match(/\.animate\s*\(\s*\S*/g)  || [] ).length; // this is .animate (
-                if (matchCount1 > 0) {
-                    results["use"].extendedCount++;
-                }
+              //  var matchCount1 = (scriptText.match(/\.animate\s*\(\s*\S*/g)  || [] ).length; // this is .animate (
+              //  if (matchCount1 > 0) {
+              //      results["use"].extendedCount++;
+              // }
 
             }
         }
