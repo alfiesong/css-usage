@@ -1839,7 +1839,7 @@ void function() {
                     xhr.open("GET", element.src, false); // third parameter, set it to sync otherwise it won't catch it
                     xhr.send();
                     if (xhr.status === 200 && xhr.responseText.indexOf(".animate") != -1  ) {
-						if(xhr.responseText.indexOf("jquery") != -1 || xhr.responseText.indexOf("jQuery") != -1){ // if jquery not exist
+						if(xhr.responseText.indexOf("jquery") != -1 || xhr.responseText.indexOf("jQuery") != -1){
                         	results["use"].jquery++;
                         	return results;
 						}
