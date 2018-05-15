@@ -1809,7 +1809,7 @@ void function() { try {
 void function() {
     window.CSSUsage.StyleWalker.recipesToRun.push( function webanimation( element, results) {
 
-        results["use"] = results["use"] || { Count: 0, Poly: 0, GS: 0, jquery: 0, errors: 0 };
+        results["use"] = results["use"] || { Count: 0, Poly: 0, GS: 0, jquery: 0 };
 
         try {
             if (element.nodeName == "SCRIPT") {
@@ -1857,7 +1857,7 @@ void function() {
         }
 
         catch (err) {
-            results["use"].errors++;
+            return results;
         }
         return results;
     });
